@@ -16,7 +16,7 @@ class Conta{
     static autenticar(agencia, numero, senha){
         let contas = Conta.contas
     
-        var contaRetorno = {}
+        var contaRetorno = null
         contas.forEach((conta) =>{
             if(conta.agencia == agencia && conta.senha == senha && conta.numero_conta == numero){
                 return contaRetorno = conta
@@ -24,7 +24,7 @@ class Conta{
             
         })
 
-        if(contaRetorno){
+        if(contaRetorno != null){
             return {conta: contaRetorno, acesso: true}
         } else {
             return {conta: null, acesso: false}
@@ -61,8 +61,29 @@ class Conta{
         }
     }
 
-    transferir(contaOrigem, contaDestino ){
+    transferir(origem, destino, valor){
+        // validar a origem
+        let resp = Conta.autenticar(origem.agencia, origem.numero, origem.senha)
+        let contaOrigem = resp.conta
         
+        if(contaOrigem == null){
+            return {conta : "Conta de origem inexistente"}
+        }
+
+        // validar o destino
+        let resp2 = Conta.autenticar(destino.agencia, destino.numero, destino.senha)
+        let contaDestino = resp2.conta
+        if(contaDestino == null){
+            return {conta : "Conta de destino inexistente"}
+        } 
+
+        let resp3 = origem.saque(valor, true)
+        if(`Saque não realizado por falta de saldo` != resp3.saque){
+            destino.depositar(valor, true)
+            return {transferencia: "Realizada com sucesso"}
+        } else{
+            return {transferencia: "Não realizada com sucesso"}
+        }
     }
 
     cobrarTaxar(){
